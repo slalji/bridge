@@ -27,15 +27,23 @@ include "layout/header.html";
                                         <form id="theform" action="">
                                             <table>
                                                 <tr>
-                                                    <td><input type="text" class="form-control" id="phone" placeholder="phone#"></td>
-                                                    <td><input type="text" class="form-control" id="ref" placeholder="reference#"></td>
-                                                    <td><select class="form-control" id="groupname">
+                                                    <td><label>Date Range</label></td>
+                                                    <td >
+                                                        <div id="reportrange" class="pull-left" style="border-radus:5px ;background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                                                            <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
+                                                            <span></span> <b class="caret"></b>
+                                                        </div>
+                                                    </td>
+                                                    </tr>
+                                                <tr><td><input type="text" class="form-control" id="phone" placeholder="phone#"></td></tr>
+                                                <tr><td><input type="text" class="form-control" id="ref" placeholder="reference#"></td></tr>
+                                                <tr><td><select class="form-control" id="groupname">
 
                                                             <option value=-"">All Groups</option>
                                                         </select>
                                                     </td>
-                                                    <td>   </td>
-                                                    <td><button class="btn btn-primary" id="start">Submit</button> </td>
+                                                </tr>
+                                                    <td></td><td><button class="btn btn-primary" id="start">Submit</button> </td>
                                                 </tr>
                                             </table>
 
@@ -104,46 +112,34 @@ include "layout/header.html";
         margin-left: -35px !important; ;
     }
 </style>
-<script>
-    $(document).ready(function(){
-        $("form").submit(function(event){
-            event.preventDefault();
-           var phone = document.getElementById('phone').value;
-            var ref = document.getElementById('ref').value;
-            var groupid = document.getElementById('groupname').value;
-            alert(groupid+' '+phone+' '+ref);
-            document.getElementById("current").innerHTML=groupid;
-            $.get({
-                type: 'get',
-                url: 'ajax/getItem.php',
-                dataType: 'json',
-                //data: $("#theform").serialize(),
-               data: {id: groupid, phone: phone, ref: ref},
-                error: function(response){console.log(response)},
-                success: function (response) {
 
-                    var str='';
-                    $.each(response, function(index, element) {
+<script type="text/javascript">
+    //$("#reportrange").on('click',function(){
+    $(function() {
 
-                        str += "<tr><td>"+element.id+"</td>"+
-                        "<td>"+element.fulltimestamp+
-                        "<td>"+element.msisdn+"</td>"+
-                        "<td>"+element.account+"</td>"+
-                        "<td>"+element.service+"</td>"+
-                        "<td>"+element.reference+"</td>"+
-                        "<td>"+element.amount+"</td>"+
-                        "<td>"+element.tstatus+"</td>"+
-                        "<td>"+element.lang+"</td>"+
-                        "<td>"+element.groupid+"</td>"+
-                        "</tr>";
+        var start = moment().subtract(29, 'days');
+        var end = moment();
 
-                        //console.log(str);
-                    });
-                    document.getElementById("tbody").innerHTML=str;
-                }
-            });
-        });
+        function cb(start, end) {
+            $('#reportrange span').html(start.format('MMM D, YYYY') + ' - ' + end.format('MMM D, YYYY'));
+        }
 
+        $('#reportrange').daterangepicker({
+            autoApply: false,
+            autoUpdateInput:false,
+            startDate: start,
+            endDate: end,
+            ranges: {
+                'Today': [moment(), moment()],
+                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            }
+        }, cb);
+
+        cb(start, end);
 
     });
 </script>
