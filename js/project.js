@@ -1,15 +1,23 @@
 $( document ).ready(function() {
-    //$('input[name="daterange"]').daterangepicker();
+    var lang = {};
+    lang['SW'] = 'Swahili';
+
+    var status ={};
+    status['SUCCESS'] = '<span class="label label-sm label-success">Success</span>';
+    status['FAILED'] = '<span class="label label-sm label-danger">Failed</span>';
+
+
+
     //groupid
-    console.log( "ready!" );
+
     $.ajax({
-        type: 'post',
+        type: 'get',
         url: 'ajax/getGroup.php',
         dataType: 'json',
 
         success: function (response) {
 
-            var str = "<option value=''>ALL Groups</option>";
+            var str = "<option value=-1>ALL Groups</option>";
             $.each(response, function(index, element) {
 
                 str += "<option value='"+element.groupid+"'>"+element.name+"</option>";
@@ -24,10 +32,13 @@ $( document ).ready(function() {
     });
     // main content
     $.ajax({
-        type: 'post',
+        type: 'get',
         url: 'ajax/getItem.php',
         dataType: 'json',
-
+        error: function(jqXHR, textStatus, errorThrown) {
+            console.log(JSON.stringify(jqXHR));
+            console.log("AJAX error: " + textStatus + ' : ' + errorThrown);
+        },
         success: function (response) {
             var str='';
             $.each(response, function(index, element) {
@@ -39,14 +50,14 @@ $( document ).ready(function() {
                 "<td>"+element.service+"</td>"+
                 "<td>"+element.reference+"</td>"+
                 "<td>"+element.amount+"</td>"+
-                "<td>"+element.tstatus+"</td>"+
-                "<td>"+element.lang+"</td>"+
+                "<td>"+status[element.tstatus]+"</td>"+
+                "<td>"+lang[element.lang]+"</td>"+
                 "<td>"+element.groupid+"</td>"+
                 "</tr>";
 
-                // console.log(JSON.stringify(str));
+                //console.log(JSON.stringify(str));
             });
-            document.getElementById("tbody").innerHTML=str;
+            document.getElementById("transaction_table").innerHTML=str;
         }
     });
     $('#daterange').daterangepicker();
@@ -59,13 +70,19 @@ $( document ).ready(function() {
         var phone = document.getElementById('phone').value;
         var ref = document.getElementById('ref').value;
         var groupid = document.getElementById('groupname').value;
-        var startDate = $('#reportrange').data('daterangepicker').startDate.format('YYYY-MM-DD');
-        var endDate = $('#reportrange').data('daterangepicker').endDate.format('YYYY-MM-DD');
+        var startDate='';
+        var endDate='';
+        if($('#calshow').is(":checked")) {
+
+            startDate = $('#reportrange').data('daterangepicker').startDate.format('YYYY-MM-DD');
+            endDate = $('#reportrange').data('daterangepicker').endDate.format('YYYY-MM-DD');
+            console.log('daterange '+startDate,endDate);
+        }
 
         console.log(groupid+' '+phone+' '+ref);
-        console.log(startDate,endDate);
+
         document.getElementById("current").innerHTML=groupid;
-        $.get({
+        $.ajax({
             type: 'get',
             url: 'ajax/getItem.php',
             dataType: 'json',
@@ -73,7 +90,7 @@ $( document ).ready(function() {
             data: {id: groupid, phone: phone, ref: ref, startDate: startDate, endDate: endDate},
             error: function(response){console.log(response)},
             success: function (response) {
-
+                //console.log(response);
                 var str='';
                 $.each(response, function(index, element) {
 
@@ -84,14 +101,14 @@ $( document ).ready(function() {
                     "<td>"+element.service+"</td>"+
                     "<td>"+element.reference+"</td>"+
                     "<td>"+element.amount+"</td>"+
-                    "<td>"+element.tstatus+"</td>"+
-                    "<td>"+element.lang+"</td>"+
+                    "<td>"+status[element.tstatus]+"</td>"+
+                    "<td>"+lang[element.lang]+"</td>"+
                     "<td>"+element.groupid+"</td>"+
                     "</tr>";
 
                     //console.log(str);
                 });
-                document.getElementById("tbody").innerHTML=str;
+                document.getElementById("transaction_table").innerHTML=str;
             }
         });
     });

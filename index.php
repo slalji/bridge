@@ -27,19 +27,28 @@ include "layout/header.html";
                                         <form id="theform" action="">
                                             <table>
                                                 <tr>
-                                                    <td><label>Date Range</label></td>
+
                                                     <td >
+                                                        <div class="calicon">
+                                                            <div class="btn btn-success">
+                                                                <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
+                                                                <span><label>Date Range</label> <input type="checkbox" name="calshow" id="calshow" value=false></span>
+                                                            </div>
+
+                                                        </div>
+
                                                         <div id="reportrange" class="pull-left" style="border-radus:5px ;background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
                                                             <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
                                                             <span></span> <b class="caret"></b>
                                                         </div>
+
                                                     </td>
                                                     </tr>
                                                 <tr><td><input type="text" class="form-control" id="phone" placeholder="phone#"></td></tr>
                                                 <tr><td><input type="text" class="form-control" id="ref" placeholder="reference#"></td></tr>
                                                 <tr><td><select class="form-control" id="groupname">
 
-                                                            <option value=-"">All Groups</option>
+                                                            <option value=-1>All Groups</option>
                                                         </select>
                                                     </td>
                                                 </tr>
@@ -75,7 +84,7 @@ include "layout/header.html";
                             <th class="col-text">Group Id</th>
                         </tr>
                         </thead>
-                        <tbody id="tbody">
+                        <tbody id="transaction_table">
 
 
                         </tbody>
@@ -114,8 +123,18 @@ include "layout/header.html";
 </style>
 
 <script type="text/javascript">
-    //$("#reportrange").on('click',function(){
+
+
     $(function() {
+
+        $("#reportrange").hide();
+        $("#calshow").click(function() {
+            if($(this).is(":checked")) {
+                $("#reportrange").show(300);
+            } else {
+                $("#reportrange").hide(200);
+            }
+        });
 
         var start = moment().subtract(29, 'days');
         var end = moment();
@@ -125,8 +144,6 @@ include "layout/header.html";
         }
 
         $('#reportrange').daterangepicker({
-            autoApply: false,
-            autoUpdateInput:false,
             startDate: start,
             endDate: end,
             ranges: {
